@@ -1,0 +1,1177 @@
+{
+	"info": {
+		"_postman_id": "f3cfba8d-2c2b-44e2-a168-bcf2d2484ce3",
+		"name": "SG APIs - Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39446261"
+	},
+	"item": [
+		{
+			"name": "Test_CreateWager",
+			"item": [
+				{
+					"name": "01_Get Service Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Save player token and refresh token\r",
+									"let SG_LOGIN_PLAYER_RESPONSE = pm.response.json();\r",
+									"pm.environment.set(\"PLAYER_TOKEN\", SG_LOGIN_PLAYER_RESPONSE.data.attributes.claim);\r",
+									"pm.environment.set(\"PLAYER_BEARER_TOKEN\", SG_LOGIN_PLAYER_RESPONSE.data.id);\r",
+									"pm.environment.set(\"PLAYER_ID\", SG_LOGIN_PLAYER_RESPONSE.data.attributes.playerId);\r",
+									"pm.environment.set(\"PLAYER_REFRESH_TOKEN\", SG_LOGIN_PLAYER_RESPONSE.data.attributes.refreshToken);\r",
+									"\r",
+									"//validte HTTP Status Code\r",
+									"pm.test(\"SG Login Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"//Validte Login response body\r",
+									"pm.test (\"SG Login Response Body Verify\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data.type).to.eql(\"access-token\");\r",
+									"    pm.expect(jsonData.data.attributes.tokenType).to.eql(\"Bearer\") \r",
+									"});\r",
+									"\r",
+									"//validte Response Schema\r",
+									"var schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"required\": [\r",
+									"        \"data\"\r",
+									"    ],\r",
+									"    \"properties\": {\r",
+									"        \"data\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"required\": [\r",
+									"                \"type\",\r",
+									"                \"id\",\r",
+									"                \"attributes\"\r",
+									"            ],\r",
+									"            \"properties\": {\r",
+									"                \"type\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"id\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"attributes\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"required\": [\r",
+									"                        \"claim\",\r",
+									"                        \"expiresIn\",\r",
+									"                        \"tokenType\",\r",
+									"                        \"refreshToken\",\r",
+									"                        \"requiredActions\",\r",
+									"                        \"playerId\",\r",
+									"                        \"agentId\"\r",
+									"                    ],\r",
+									"                    \"properties\": {\r",
+									"                        \"claim\": {\r",
+									"                            \"type\": \"string\",\r",
+									"                        },\r",
+									"                        \"expiresIn\": {\r",
+									"                            \"type\": \"integer\",\r",
+									"                        },\r",
+									"                        \"tokenType\": {\r",
+									"                            \"type\": \"string\",\r",
+									"                        },\r",
+									"                        \"refreshToken\": {\r",
+									"                            \"type\": \"string\",\r",
+									"                        },\r",
+									"                        \"requiredActions\": {\r",
+									"                            \"type\": \"array\",\r",
+									"                        },\r",
+									"                        \"playerId\": {\r",
+									"                            \"type\": \"string\",\r",
+									"                        },\r",
+									"                        \"agentId\": {\r",
+									"                            \"type\": \"null\",\r",
+									"                        }\r",
+									"                    }\r",
+									"                }\r",
+									"            }\r",
+									"        }\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Validate schema\", () => {\r",
+									"pm.response.to.have.jsonSchema(schema);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-SG-SS-Operator-Id",
+								"value": "{{Operator_ID}}"
+							},
+							{
+								"key": "X-SG-SS-Correlation-Id",
+								"value": "{{$guid}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "clientId",
+									"value": "frontend",
+									"type": "text"
+								},
+								{
+									"key": "clientSecret",
+									"value": "MstkMYfDBsZ9kEGxqjBNxGqVtAQUx7KR",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_UPAM_URL}}/pfi/login?type=service",
+							"host": [
+								"{{BASE_UPAM_URL}}"
+							],
+							"path": [
+								"pfi",
+								"login"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "service"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "02_Login_UPAM",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Save player token and refresh token\r",
+									"let SG_LOGIN_PLAYER_RESPONSE = pm.response.json();\r",
+									"pm.environment.set(\"PLAYER_TOKEN\", SG_LOGIN_PLAYER_RESPONSE.data.attributes.claim);\r",
+									"pm.environment.set(\"PLAYER_BEARER_TOKEN\", SG_LOGIN_PLAYER_RESPONSE.data.id);\r",
+									"pm.environment.set(\"PLAYER_ID\", SG_LOGIN_PLAYER_RESPONSE.data.attributes.playerId);\r",
+									"pm.environment.set(\"PLAYER_REFRESH_TOKEN\", SG_LOGIN_PLAYER_RESPONSE.data.attributes.refreshToken);\r",
+									"\r",
+									"//validte HTTP Status Code\r",
+									"pm.test(\"SG Login Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"//Validte Login response body\r",
+									"pm.test (\"SG Login Response Body Verify\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data.type).to.eql(\"access-token\");\r",
+									"    pm.expect(jsonData.data.attributes.tokenType).to.eql(\"Bearer\") \r",
+									"});\r",
+									"\r",
+									"//validte Response Schema\r",
+									"var schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"required\": [\r",
+									"        \"data\"\r",
+									"    ],\r",
+									"    \"properties\": {\r",
+									"        \"data\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"required\": [\r",
+									"                \"type\",\r",
+									"                \"id\",\r",
+									"                \"attributes\"\r",
+									"            ],\r",
+									"            \"properties\": {\r",
+									"                \"type\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"id\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"attributes\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"required\": [\r",
+									"                        \"claim\",\r",
+									"                        \"expiresIn\",\r",
+									"                        \"tokenType\",\r",
+									"                        \"refreshToken\",\r",
+									"                        \"requiredActions\",\r",
+									"                        \"playerId\",\r",
+									"                        \"agentId\"\r",
+									"                    ],\r",
+									"                    \"properties\": {\r",
+									"                        \"claim\": {\r",
+									"                            \"type\": \"string\",\r",
+									"                        },\r",
+									"                        \"expiresIn\": {\r",
+									"                            \"type\": \"integer\",\r",
+									"                        },\r",
+									"                        \"tokenType\": {\r",
+									"                            \"type\": \"string\",\r",
+									"                        },\r",
+									"                        \"refreshToken\": {\r",
+									"                            \"type\": \"string\",\r",
+									"                        },\r",
+									"                        \"requiredActions\": {\r",
+									"                            \"type\": \"array\",\r",
+									"                        },\r",
+									"                        \"playerId\": {\r",
+									"                            \"type\": \"string\",\r",
+									"                        },\r",
+									"                        \"agentId\": {\r",
+									"                            \"type\": \"null\",\r",
+									"                        }\r",
+									"                    }\r",
+									"                }\r",
+									"            }\r",
+									"        }\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Validate schema\", () => {\r",
+									"pm.response.to.have.jsonSchema(schema);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{PLAYER_BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-SG-SS-Operator-Id",
+								"value": "{{Operator_ID}}"
+							},
+							{
+								"key": "X-SG-SS-Correlation-Id",
+								"value": "{{$guid}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "{{PLAYER_EMAIL}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{PASSWORD}}",
+									"type": "text"
+								},
+								{
+									"key": "ip",
+									"value": "127.0.0.1",
+									"type": "text"
+								},
+								{
+									"key": "channel",
+									"value": "web",
+									"type": "text"
+								},
+								{
+									"key": "clientId",
+									"value": "{{CLIENT_ID}}",
+									"type": "text"
+								},
+								{
+									"key": "clientSecret",
+									"value": "{{CLIENT_SECRET}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_UPAM_URL}}/pfi/login?type=player",
+							"host": [
+								"{{BASE_UPAM_URL}}"
+							],
+							"path": [
+								"pfi",
+								"login"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "player"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "03_Fetch Wallet Balance_UPAM",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"SG Fetch Wallet Balance Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test (\"SG Fetch Wallet Balance Response Body Verify\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data.type).to.eql(\"wallet\");\r",
+									"    pm.expect(jsonData.data.attributes.balances[0].id).to.eql(\"real-deposits\");\r",
+									"    pm.expect(jsonData.data.attributes.balances[1].id).to.eql(\"real-wins\");\r",
+									"});\r",
+									"\r",
+									"var schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"default\": {},\r",
+									"    \"title\": \"Root Schema\",\r",
+									"    \"required\": [\r",
+									"        \"meta\",\r",
+									"        \"data\"\r",
+									"    ],\r",
+									"    \"properties\": {\r",
+									"        \"meta\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"required\": [\r",
+									"                \"createdAt\",\r",
+									"                \"lastUpdated\"\r",
+									"            ],\r",
+									"            \"properties\": {\r",
+									"                \"createdAt\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"lastUpdated\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        \"data\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"required\": [\r",
+									"                \"type\",\r",
+									"                \"id\",\r",
+									"                \"attributes\"\r",
+									"            ],\r",
+									"            \"properties\": {\r",
+									"                \"type\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"id\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"attributes\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"required\": [\r",
+									"                        \"locked\",\r",
+									"                        \"balances\"\r",
+									"                    ],\r",
+									"                    \"properties\": {\r",
+									"                        \"locked\": {\r",
+									"                            \"type\": \"boolean\",\r",
+									"                        },\r",
+									"                        \"balances\": {\r",
+									"                            \"type\": \"array\",\r",
+									"                            \"default\": [],\r",
+									"                            \"title\": \"The balances Schema\",\r",
+									"                            \"items\": {\r",
+									"                                \"type\": \"object\",\r",
+									"                                \"title\": \"A Schema\",\r",
+									"                                \"required\": [\r",
+									"                                    \"type\",\r",
+									"                                    \"id\",\r",
+									"                                    \"available\",\r",
+									"                                    \"reserved\",\r",
+									"                                    \"operationInProgressUntil\"\r",
+									"                                ],\r",
+									"                                \"properties\": {\r",
+									"                                    \"type\": {\r",
+									"                                        \"type\": \"string\",\r",
+									"                                    },\r",
+									"                                    \"id\": {\r",
+									"                                        \"type\": \"string\",\r",
+									"                                    },\r",
+									"                                    \"available\": {\r",
+									"                                        \"type\": \"integer\",\r",
+									"                                    },\r",
+									"                                    \"reserved\": {\r",
+									"                                        \"type\": \"integer\",\r",
+									"                                    },\r",
+									"                                    \"operationInProgressUntil\": {\r",
+									"                                        \"type\": \"null\",\r",
+									"                                    }\r",
+									"                                }\r",
+									"                            }\r",
+									"                        }\r",
+									"                    }\r",
+									"                }\r",
+									"            }\r",
+									"        }\r",
+									"    }\r",
+									"}\r",
+									"pm.test(\"Validate schema\", () => {\r",
+									"pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{PLAYER_BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-SG-SS-Operator-Id",
+								"value": "{{Operator_ID}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SG-SS-Correlation-Id",
+								"value": "{{$guid}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_UPAM_URL}}/pfi/wallets/{{PLAYER_ID}}",
+							"host": [
+								"{{BASE_UPAM_URL}}"
+							],
+							"path": [
+								"pfi",
+								"wallets",
+								"{{PLAYER_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch_Game_History_UPAM",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"SG Fetch Wallet Balance Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test (\"SG Fetch Wallet Balance Response Body Verify\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data.type).to.eql(\"wallet\");\r",
+									"    pm.expect(jsonData.data.attributes.balances[0].id).to.eql(\"real-deposits\");\r",
+									"    pm.expect(jsonData.data.attributes.balances[1].id).to.eql(\"real-wins\");\r",
+									"});\r",
+									"\r",
+									"var schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"default\": {},\r",
+									"    \"title\": \"Root Schema\",\r",
+									"    \"required\": [\r",
+									"        \"meta\",\r",
+									"        \"data\"\r",
+									"    ],\r",
+									"    \"properties\": {\r",
+									"        \"meta\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"required\": [\r",
+									"                \"createdAt\",\r",
+									"                \"lastUpdated\"\r",
+									"            ],\r",
+									"            \"properties\": {\r",
+									"                \"createdAt\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"lastUpdated\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        \"data\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"required\": [\r",
+									"                \"type\",\r",
+									"                \"id\",\r",
+									"                \"attributes\"\r",
+									"            ],\r",
+									"            \"properties\": {\r",
+									"                \"type\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"id\": {\r",
+									"                    \"type\": \"string\",\r",
+									"                },\r",
+									"                \"attributes\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"required\": [\r",
+									"                        \"locked\",\r",
+									"                        \"balances\"\r",
+									"                    ],\r",
+									"                    \"properties\": {\r",
+									"                        \"locked\": {\r",
+									"                            \"type\": \"boolean\",\r",
+									"                        },\r",
+									"                        \"balances\": {\r",
+									"                            \"type\": \"array\",\r",
+									"                            \"default\": [],\r",
+									"                            \"title\": \"The balances Schema\",\r",
+									"                            \"items\": {\r",
+									"                                \"type\": \"object\",\r",
+									"                                \"title\": \"A Schema\",\r",
+									"                                \"required\": [\r",
+									"                                    \"type\",\r",
+									"                                    \"id\",\r",
+									"                                    \"available\",\r",
+									"                                    \"reserved\",\r",
+									"                                    \"operationInProgressUntil\"\r",
+									"                                ],\r",
+									"                                \"properties\": {\r",
+									"                                    \"type\": {\r",
+									"                                        \"type\": \"string\",\r",
+									"                                    },\r",
+									"                                    \"id\": {\r",
+									"                                        \"type\": \"string\",\r",
+									"                                    },\r",
+									"                                    \"available\": {\r",
+									"                                        \"type\": \"integer\",\r",
+									"                                    },\r",
+									"                                    \"reserved\": {\r",
+									"                                        \"type\": \"integer\",\r",
+									"                                    },\r",
+									"                                    \"operationInProgressUntil\": {\r",
+									"                                        \"type\": \"null\",\r",
+									"                                    }\r",
+									"                                }\r",
+									"                            }\r",
+									"                        }\r",
+									"                    }\r",
+									"                }\r",
+									"            }\r",
+									"        }\r",
+									"    }\r",
+									"}\r",
+									"pm.test(\"Validate schema\", () => {\r",
+									"pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{PLAYER_BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-SG-SS-Operator-Id",
+								"value": "{{Operator_ID}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SG-SS-Correlation-Id",
+								"value": "{{$guid}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_UPAM_URL}}/pfi/players/{{PLAYER_ID}}/game-history",
+							"host": [
+								"{{BASE_UPAM_URL}}"
+							],
+							"path": [
+								"pfi",
+								"players",
+								"{{PLAYER_ID}}",
+								"game-history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get_Wager_History_PDS",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{PLAYER_BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-SG-SS-Operator-Id",
+								"value": "{{Operator_ID}}",
+								"type": "text"
+							},
+							{
+								"key": "X-SG-SS-Correlation-Id",
+								"value": "{{$guid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  \"5400009994449300\"\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_UPAM_URL}}/pfi/wager-history-api/v1/wagers/get-many",
+							"host": [
+								"{{BASE_UPAM_URL}}"
+							],
+							"path": [
+								"pfi",
+								"wager-history-api",
+								"v1",
+								"wagers",
+								"get-many"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Subscription",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let SG_Create_FavBet_RESPONSE = pm.response.json();\r",
+									"pm.environment.set(\"PLAYER_FavBet_ID\", SG_Create_FavBet_RESPONSE.data.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{PLAYER_BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-SG-SS-Operator-Id",
+								"value": "{{Operator_ID}}"
+							},
+							{
+								"key": "X-SG-SS-Correlation-ID",
+								"value": "{{$guid}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_UPAM_URL}}/pfi/players/{{PLAYER_ID}}/templates",
+							"host": [
+								"{{BASE_UPAM_URL}}"
+							],
+							"path": [
+								"pfi",
+								"players",
+								"{{PLAYER_ID}}",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "04_Create Wager_DGE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Save Wager Id\r",
+									"let SG_WAGER_RESPONSE = pm.response.json();\r",
+									"pm.environment.set(\"WAGER_ID\", SG_WAGER_RESPONSE.wagerResponseData[0].wagerId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-correlation-id",
+								"value": "{{$randomUUID}}"
+							},
+							{
+								"key": "x-sg-device-type",
+								"value": "7"
+							},
+							{
+								"key": "x-sg-device-user-id",
+								"value": "10076"
+							},
+							{
+								"key": "x-sg-jurisdiction-id",
+								"value": "54"
+							},
+							{
+								"key": "x-sg-pos-id",
+								"value": "525802"
+							},
+							{
+								"key": "x-sg-sales-channel",
+								"value": "10"
+							},
+							{
+								"key": "x-sg-pos-device-socket-id",
+								"value": "52580201"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"playerData\": {\r\n    \"playerId\": {{PLAYER_ID}}\r\n  },\r\n  \"wagerRequestData\": {\r\n    \"playMethodNo\": 6,\r\n    \"wagerTypeNo\": 14,\r\n    \"wagerDefNo\": 212,\r\n    \"betDataReq\": [\r\n      {\r\n        \"gameId\": 25,\r\n        \"drawCount\": 1,\r\n        \"panels\": [\r\n          {\r\n            \"playTypeNo\": 1,\r\n            \"stakeMultiplier\": 1,\r\n            \"isCorrected\": false,\r\n            \"selectionEncoding\": \"SS\",\r\n            \"selection\": \"102475\"\r\n          }\r\n        ]\r\n      }\r\n    ]\r\n  }\r\n}  ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://lnz-t2-dge.scigames.nz/dge-wager/v1/wagers",
+							"protocol": "http",
+							"host": [
+								"lnz-t2-dge",
+								"scigames",
+								"nz"
+							],
+							"path": [
+								"dge-wager",
+								"v1",
+								"wagers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "04_Create Wager_RCS",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Save Wager Id\r",
+									"let SG_WAGER_RESPONSE = pm.response.json();\r",
+									"pm.environment.set(\"WAGER_ID\", SG_WAGER_RESPONSE.wagerResponseData[0].wagerId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{PLAYER_BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-correlation-id",
+								"value": "{{$randomUUID}}"
+							},
+							{
+								"key": "x-sg-device-type",
+								"value": "7"
+							},
+							{
+								"key": "x-sg-device-user-id",
+								"value": "10076"
+							},
+							{
+								"key": "x-sg-jurisdiction-id",
+								"value": "54"
+							},
+							{
+								"key": "x-sg-pos-id",
+								"value": "525802"
+							},
+							{
+								"key": "x-sg-sales-channel",
+								"value": "10"
+							},
+							{
+								"key": "x-sg-pos-device-socket-id",
+								"value": "52580201"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"playerData\": {\r\n    \"playerId\": {{PLAYER_ID}}\r\n  },\r\n  \"wagerRequestData\": {\r\n    \"playMethodNo\": 6,\r\n    \"wagerTypeNo\": 14,\r\n    \"wagerDefNo\": 212,\r\n    \"betDataReq\": [\r\n      {\r\n        \"gameId\": 25,\r\n        \"drawCount\": 1,\r\n        \"panels\": [\r\n          {\r\n            \"playTypeNo\": 1,\r\n            \"stakeMultiplier\": 1,\r\n            \"isCorrected\": false,\r\n            \"selectionEncoding\": \"SS\",\r\n            \"selection\": \"102475\"\r\n          }\r\n        ]\r\n      }\r\n    ]\r\n  }\r\n}  ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://lnz-t2-rcs.scigames.nz/rcs-dge-wager/v1/wagers",
+							"protocol": "https",
+							"host": [
+								"lnz-t2-rcs",
+								"scigames",
+								"nz"
+							],
+							"path": [
+								"rcs-dge-wager",
+								"v1",
+								"wagers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "04_Create Wager_BypassUPAM",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Save Wager Id\r",
+									"let SG_WAGER_RESPONSE = pm.response.json();\r",
+									"pm.environment.set(\"WAGER_ID\", SG_WAGER_RESPONSE.wagerResponseData[0].wagerId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-correlation-id",
+								"value": "{{$randomUUID}}"
+							},
+							{
+								"key": "x-sg-device-type",
+								"value": "7"
+							},
+							{
+								"key": "x-sg-device-user-id",
+								"value": "10076"
+							},
+							{
+								"key": "x-sg-jurisdiction-id",
+								"value": "54"
+							},
+							{
+								"key": "x-sg-pos-id",
+								"value": "525802"
+							},
+							{
+								"key": "x-sg-sales-channel",
+								"value": "10"
+							},
+							{
+								"key": "x-sg-pos-device-socket-id",
+								"value": "52580201"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"wagerRequestData\": {\r\n    \"playMethodNo\": 6,\r\n    \"wagerTypeNo\": 14,\r\n    \"wagerDefNo\": 212,\r\n    \"betDataReq\": [\r\n      {\r\n        \"gameId\": 25,\r\n        \"drawCount\": 1,\r\n        \"panels\": [\r\n          {\r\n            \"playTypeNo\": 1,\r\n            \"stakeMultiplier\": 1,\r\n            \"isCorrected\": false,\r\n            \"selectionEncoding\": \"SS\",\r\n            \"selection\": \"102475\"\r\n          }\r\n        ]\r\n      }\r\n    ]\r\n  }\r\n}  ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://lnz-t2-rcs.scigames.nz/rcs-dge-wager/v1/wagers",
+							"protocol": "https",
+							"host": [
+								"lnz-t2-rcs",
+								"scigames",
+								"nz"
+							],
+							"path": [
+								"rcs-dge-wager",
+								"v1",
+								"wagers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "05_Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{PLAYER_BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-SG-SS-Operator-Id",
+								"value": "{{Operator_ID}}"
+							},
+							{
+								"key": "X-SG-SS-Correlation-Id",
+								"value": "{{$guid}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "reason",
+									"value": "manualLogout",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_UPAM_URL}}/pfi/logout",
+							"host": [
+								"{{BASE_UPAM_URL}}"
+							],
+							"path": [
+								"pfi",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "SERVICE_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "SERVICE_TOKEN_ID",
+			"value": ""
+		},
+		{
+			"key": "PLAYER_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "PLAYER_TOKEN_ID",
+			"value": ""
+		},
+		{
+			"key": "PLAYER_ID",
+			"value": ""
+		},
+		{
+			"key": "PLAYER_REFRESH_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "TC_TYPE",
+			"value": ""
+		},
+		{
+			"key": "TC_VERSION",
+			"value": ""
+		},
+		{
+			"key": "PLAYER_EMAIL",
+			"value": ""
+		},
+		{
+			"key": "EMAIL_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "PLAYER_PAYMENT_METHOD_ID",
+			"value": ""
+		},
+		{
+			"key": "BACKOFFICE_TOKEN_ID",
+			"value": ""
+		},
+		{
+			"key": "PLAYER_FavBet_ID",
+			"value": ""
+		}
+	]
+}
