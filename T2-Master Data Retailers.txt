@@ -1,3 +1,32 @@
+Query for capturing response times from DGE
+SELECT 
+    TO_CHAR(
+        TX_START_TIMESTAMP - 
+        (MOD(TO_NUMBER(TO_CHAR(TX_START_TIMESTAMP, 'SS')), 10) * INTERVAL '1' SECOND),
+        'HH24:MI:SS'
+    ) AS timegroup,
+    count(*),
+    min(ELAPSED_MS),
+    round(avg(ELAPSED_MS), 2),
+    max(ELAPSED_MS)
+FROM XSE_SCS_LOG
+WHERE TX_CODE = 400002
+    --AND TX_START_TIMESTAMP BETWEEN to_date('19/02/2025 13:45', 'dd/mm/yyyy hh24:mi') AND to_date('19/02/2025 14:20', 'dd/mm/yyyy hh24:mi')
+    AND TX_START_TIMESTAMP > to_date('19/02/2025 14:55', 'dd/mm/yyyy hh24:mi')
+    AND PLY_ID IS NOT NULL
+GROUP BY 
+    TO_CHAR(
+        TX_START_TIMESTAMP - 
+        (MOD(TO_NUMBER(TO_CHAR(TX_START_TIMESTAMP, 'SS')), 10) * INTERVAL '1' SECOND),
+        'HH24:MI:SS'
+    )
+ORDER BY 1 DESC;  
+--------------------------------------------------
+
+
+
+
+
 With Player ID - 92d1b576-acb2-48f7-ae56-35c181abb104
 VdXCsHZZBCDPhqmD7lRlejuJz2e1sKLQgrsVlJmDCr0hXEQa1WZuySqfptslnWIhC5kb3FVjSethrpVIcMkDxA==
 
